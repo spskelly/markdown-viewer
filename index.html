@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lightweight markdown file viewer PWA">
+    <meta name="theme-color" content="#0d1117">
+    <title>Markdown Viewer</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Markdown Viewer</h1>
+            <div class="controls">
+                <button id="openFile" class="btn">Open File</button>
+                <button id="toggleTheme" class="btn">🌓 Toggle Theme</button>
+            </div>
+        </header>
+
+        <div id="dropZone" class="drop-zone">
+            <div class="drop-zone-content">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                <p>Drop a markdown file here or click "Open File"</p>
+                <p class="hint">Set this as your default .md viewer in browser settings</p>
+            </div>
+        </div>
+
+        <div id="content" class="markdown-body" style="display: none;"></div>
+        
+        <div id="fileInfo" class="file-info" style="display: none;">
+            <span id="fileName"></span>
+            <span id="fileSize"></span>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".md,.markdown" style="display: none;">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
