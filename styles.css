@@ -5,6 +5,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --bg-primary: #0d1117;
   --bg-secondary: #161b22;
@@ -78,6 +82,13 @@ header h1 {
   background: var(--accent-hover);
 }
 
+.btn-icon {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* drop zone */
 .drop-zone {
   border: 2px dashed var(--border);
@@ -110,6 +121,24 @@ header h1 {
   opacity: 0.7;
 }
 
+.error-message {
+  color: #f85149;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* kbd */
+kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-primary);
+}
+
 /* file info */
 .file-info {
   display: none;
@@ -126,6 +155,16 @@ header h1 {
 #fileName {
   font-weight: 500;
   color: var(--text-primary);
+}
+
+.file-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-info .separator {
+  color: var(--border);
 }
 
 /* markdown body - github style */
@@ -268,28 +307,122 @@ body.light-theme .markdown-body a {
   margin-right: 8px;
 }
 
+/* mermaid diagrams */
+.mermaid {
+  text-align: center;
+  margin: 16px 0;
+  padding: 16px;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* scroll to top button */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: background 0.2s, opacity 0.2s, transform 0.2s;
+  z-index: 100;
+  opacity: 0.9;
+}
+
+.scroll-top-btn:hover {
+  background: var(--accent-hover);
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* shortcuts modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal h3 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.shortcut-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.shortcut {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.shortcut span {
+  color: var(--text-secondary);
+}
+
 /* responsive */
 @media (max-width: 768px) {
   .container {
     padding: 15px;
   }
-  
+
   header {
     flex-direction: column;
     gap: 15px;
     align-items: flex-start;
   }
-  
+
   .controls {
     width: 100%;
   }
-  
+
   .btn {
     flex: 1;
   }
-  
+
   .markdown-body {
     padding: 15px;
+  }
+
+  .file-info {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
   }
 }
 
@@ -310,4 +443,65 @@ body.light-theme .markdown-body a {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
+}
+
+/* print styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  header,
+  .file-info,
+  .drop-zone,
+  .scroll-top-btn,
+  .modal-overlay,
+  #fileInput {
+    display: none !important;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .markdown-body {
+    display: block !important;
+    background: white;
+    padding: 0;
+    border-radius: 0;
+    color: black;
+  }
+
+  .markdown-body a {
+    color: #0969da;
+    text-decoration: underline;
+  }
+
+  .markdown-body a::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  .markdown-body pre {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .markdown-body table th,
+  .markdown-body table td {
+    border-color: #d0d7de;
+  }
+
+  .markdown-body img {
+    max-width: 100%;
+  }
+
+  .mermaid svg {
+    max-width: 100%;
+  }
 }

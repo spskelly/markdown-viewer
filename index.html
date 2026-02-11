@@ -13,10 +13,17 @@
 <body>
     <div class="container">
         <header>
-            <h1>📄 Markdown Viewer</h1>
+            <h1>Markdown Viewer</h1>
             <div class="controls">
                 <button id="openFile" class="btn">Open File</button>
-                <button id="toggleTheme" class="btn">🌓 Toggle Theme</button>
+                <button id="toggleTheme" class="btn">Toggle Theme</button>
+                <button id="helpBtn" class="btn btn-icon" aria-label="Keyboard shortcuts" title="Keyboard shortcuts">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </button>
             </div>
         </header>
 
@@ -27,22 +34,50 @@
                     <polyline points="13 2 13 9 20 9"></polyline>
                 </svg>
                 <p>Drop a markdown file here or click "Open File"</p>
-                <p class="hint">Set this as your default .md viewer in browser settings</p>
+                <p class="hint">or press <kbd>Ctrl+O</kbd> to open a file</p>
+                <p class="hint">Supports syntax highlighting and Mermaid diagrams</p>
+            </div>
+        </div>
+
+        <div id="fileInfo" class="file-info" style="display: none;">
+            <span id="fileName"></span>
+            <div class="file-meta">
+                <span id="fileSize"></span>
+                <span class="separator">|</span>
+                <span id="wordCount"></span>
+                <span class="separator">|</span>
+                <span id="readTime"></span>
             </div>
         </div>
 
         <div id="content" class="markdown-body" style="display: none;"></div>
-        
-        <div id="fileInfo" class="file-info" style="display: none;">
-            <span id="fileName"></span>
-            <span id="fileSize"></span>
+    </div>
+
+    <button id="scrollTop" class="scroll-top-btn" aria-label="Scroll to top" style="display: none;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <div id="shortcutsModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <h3>Keyboard Shortcuts</h3>
+            <div class="shortcut-list">
+                <div class="shortcut"><div><kbd>Ctrl</kbd> + <kbd>O</kbd></div><span>Open file</span></div>
+                <div class="shortcut"><div><kbd>Ctrl</kbd> + <kbd>D</kbd></div><span>Toggle theme</span></div>
+                <div class="shortcut"><div><kbd>?</kbd></div><span>Show shortcuts</span></div>
+                <div class="shortcut"><div><kbd>Esc</kbd></div><span>Close dialog</span></div>
+            </div>
+            <button id="closeModal" class="btn">Close</button>
         </div>
     </div>
 
     <input type="file" id="fileInput" accept=".md,.markdown" style="display: none;">
 
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-highlight@2.2.3/lib/index.umd.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

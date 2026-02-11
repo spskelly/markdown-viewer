@@ -1,4 +1,4 @@
-const CACHE_NAME = 'markdown-viewer-v1';
+const CACHE_NAME = 'markdown-viewer-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -6,8 +6,11 @@ const urlsToCache = [
   '/app.js',
   '/manifest.json',
   'https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js',
+  'https://cdn.jsdelivr.net/npm/marked-highlight@2.2.3/lib/index.umd.js',
   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css',
+  'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js'
 ];
 
 // install event - cache resources
@@ -35,10 +38,8 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  // take control of all pages immediately
-  return self.clients.claim();
 });
 
 // fetch event - serve from cache, fallback to network
@@ -52,22 +53,28 @@ self.addEventListener('fetch', event => {
         }
         // clone the request
         const fetchRequest = event.request.clone();
-        
+
         return fetch(fetchRequest).then(response => {
           // check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
+          if (!response || response.status !== 200) {
             return response;
           }
-          
-          // clone the response
-          const responseToCache = response.clone();
-          
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-          
+
+          // cache same-origin and CDN (cors) responses
+          if (response.type === 'basic' || response.type === 'cors') {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => {
+                cache.put(event.request, responseToCache);
+              });
+          }
+
           return response;
+        }).catch(() => {
+          return new Response('Offline - resource not cached', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain' }
+          });
         });
       })
   );
