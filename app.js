@@ -1,12 +1,15 @@
 // register service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
+  navigator.serviceWorker.register('/service-worker.js', { scope: '/markdown-viewer/' })
     .then(reg => console.log('service worker registered', reg))
     .catch(err => console.log('service worker registration failed', err));
 }
 
 // theme handling - persist preference
 let isDarkMode = localStorage.getItem('theme') !== 'light';
+
+// track active panzoom instances for cleanup
+let activePanzoomInstances = [];
 
 // apply saved theme on load
 if (!isDarkMode) {
@@ -53,6 +56,12 @@ mermaid.initialize({
   theme: isDarkMode ? 'dark' : 'default',
 });
 
+// destroy all active panzoom instances
+function disposePanzoomInstances() {
+  activePanzoomInstances.forEach(pz => pz.dispose());
+  activePanzoomInstances = [];
+}
+
 // dom elements
 const dropZone = document.getElementById('dropZone');
 const content = document.getElementById('content');
@@ -90,6 +99,10 @@ toggleThemeBtn.addEventListener('click', () => {
   });
 
   if (content.style.display !== 'none') {
+    // close fullscreen and dispose panzoom before re-render
+    closeDiagramFullscreen();
+    disposePanzoomInstances();
+
     const mermaidDivs = content.querySelectorAll('.mermaid');
     mermaidDivs.forEach(div => {
       const source = div.getAttribute('data-mermaid-source');
@@ -102,6 +115,7 @@ toggleThemeBtn.addEventListener('click', () => {
 
     if (mermaidDivs.length > 0) {
       mermaid.run({ querySelector: '.mermaid', suppressErrors: true })
+        .then(() => initializePanzoom())
         .catch(err => console.error('mermaid re-render error:', err));
     }
   }
@@ -168,16 +182,63 @@ dropZone.addEventListener('drop', async (e) => {
 
 // render mermaid diagrams after markdown is parsed
 async function renderMermaidDiagrams() {
+  disposePanzoomInstances();
+
   const codeBlocks = content.querySelectorAll('code.language-mermaid');
   if (codeBlocks.length === 0) return;
 
-  codeBlocks.forEach(codeBlock => {
+  codeBlocks.forEach((codeBlock, index) => {
     const pre = codeBlock.parentElement;
+
+    // create wrapper structure
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('diagram-wrapper');
+    wrapper.setAttribute('data-diagram-id', index);
+
+    // zoom controls (appear on hover via CSS)
+    wrapper.innerHTML = `
+      <div class="zoom-controls">
+        <button data-zoom="in" aria-label="Zoom in" title="Zoom in">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <button data-zoom="out" aria-label="Zoom out" title="Zoom out">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <button data-zoom="reset" aria-label="Reset zoom" title="Reset zoom">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+        </button>
+        <button data-zoom="fullscreen" aria-label="Fullscreen" title="Fullscreen">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+        </button>
+        <span class="zoom-hint">Ctrl+scroll to zoom</span>
+      </div>
+    `;
+
+    // diagram container
+    const container = document.createElement('div');
+    container.classList.add('diagram-container');
+
     const mermaidDiv = document.createElement('div');
     mermaidDiv.classList.add('mermaid');
     mermaidDiv.textContent = codeBlock.textContent;
     mermaidDiv.setAttribute('data-mermaid-source', codeBlock.textContent);
-    pre.replaceWith(mermaidDiv);
+
+    container.appendChild(mermaidDiv);
+    wrapper.appendChild(container);
+    pre.replaceWith(wrapper);
   });
 
   try {
@@ -185,12 +246,150 @@ async function renderMermaidDiagrams() {
   } catch (err) {
     console.error('mermaid rendering error:', err);
   }
+
+  initializePanzoom();
 }
+
+// initialize panzoom on all rendered mermaid SVGs
+function initializePanzoom() {
+  const wrappers = content.querySelectorAll('.diagram-wrapper');
+
+  wrappers.forEach(wrapper => {
+    const container = wrapper.querySelector('.diagram-container');
+    const svg = container.querySelector('.mermaid svg');
+    if (!svg) return;
+
+    // remove mermaid's inline max-width so panzoom can scale freely
+    svg.style.maxWidth = 'none';
+
+    const pz = panzoom(svg, {
+      maxZoom: 10,
+      minZoom: 0.1,
+      smoothScroll: false,
+      zoomDoubleClickSpeed: 1,
+      bounds: false,
+      boundsPadding: 0.1,
+      beforeWheel: function(e) {
+        // only zoom when Ctrl is held, otherwise let page scroll
+        return !e.ctrlKey;
+      }
+    });
+
+    activePanzoomInstances.push(pz);
+
+    // wire up zoom control buttons
+    const controls = wrapper.querySelector('.zoom-controls');
+    controls.addEventListener('click', (e) => {
+      const button = e.target.closest('button');
+      if (!button) return;
+
+      const action = button.getAttribute('data-zoom');
+      const rect = container.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+
+      if (action === 'in') {
+        pz.smoothZoom(cx, cy, 1.5);
+      } else if (action === 'out') {
+        pz.smoothZoom(cx, cy, 0.67);
+      } else if (action === 'reset') {
+        pz.moveTo(0, 0);
+        pz.zoomAbs(0, 0, 1);
+      } else if (action === 'fullscreen') {
+        openDiagramFullscreen(wrapper);
+      }
+    });
+  });
+}
+
+// fullscreen diagram modal
+const diagramFullscreen = document.getElementById('diagramFullscreen');
+const fullscreenContainer = document.getElementById('fullscreenContainer');
+const closeFullscreenBtn = document.getElementById('closeFullscreen');
+let fullscreenPanzoom = null;
+
+function openDiagramFullscreen(wrapper) {
+  const svg = wrapper.querySelector('.mermaid svg');
+  if (!svg) return;
+
+  // clone the SVG so the inline one stays untouched
+  const clonedSvg = svg.cloneNode(true);
+
+  // remap IDs to avoid collisions with the original SVG
+  clonedSvg.querySelectorAll('[id]').forEach(el => {
+    const oldId = el.id;
+    const newId = 'fs-' + oldId;
+    el.id = newId;
+    clonedSvg.querySelectorAll(`[href="#${oldId}"]`).forEach(ref => {
+      ref.setAttribute('href', '#' + newId);
+    });
+    clonedSvg.querySelectorAll('*').forEach(node => {
+      for (const attr of node.attributes) {
+        if (attr.value.includes(`url(#${oldId})`)) {
+          node.setAttribute(attr.name, attr.value.replace(`url(#${oldId})`, `url(#${newId})`));
+        }
+      }
+    });
+  });
+
+  fullscreenContainer.innerHTML = '';
+  fullscreenContainer.appendChild(clonedSvg);
+
+  diagramFullscreen.style.display = 'flex';
+
+  // initialize panzoom on the cloned SVG (no beforeWheel guard in fullscreen)
+  fullscreenPanzoom = panzoom(clonedSvg, {
+    maxZoom: 20,
+    minZoom: 0.05,
+    smoothScroll: false,
+    bounds: false
+  });
+}
+
+function closeDiagramFullscreen() {
+  if (fullscreenPanzoom) {
+    fullscreenPanzoom.dispose();
+    fullscreenPanzoom = null;
+  }
+  fullscreenContainer.innerHTML = '';
+  diagramFullscreen.style.display = 'none';
+}
+
+closeFullscreenBtn.addEventListener('click', closeDiagramFullscreen);
+
+diagramFullscreen.addEventListener('click', (e) => {
+  if (e.target === diagramFullscreen) {
+    closeDiagramFullscreen();
+  }
+});
+
+// wire up fullscreen zoom controls
+document.querySelector('.fullscreen-controls').addEventListener('click', (e) => {
+  const button = e.target.closest('button');
+  if (!button || !fullscreenPanzoom) return;
+
+  const action = button.getAttribute('data-zoom');
+  const rect = fullscreenContainer.getBoundingClientRect();
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+
+  if (action === 'in') {
+    fullscreenPanzoom.smoothZoom(cx, cy, 1.5);
+  } else if (action === 'out') {
+    fullscreenPanzoom.smoothZoom(cx, cy, 0.67);
+  } else if (action === 'reset') {
+    fullscreenPanzoom.moveTo(0, 0);
+    fullscreenPanzoom.zoomAbs(0, 0, 1);
+  }
+});
 
 // render markdown file
 async function renderMarkdownFile(file) {
   try {
     const text = await file.text();
+
+    // dispose panzoom before destroying DOM nodes
+    disposePanzoomInstances();
 
     // render markdown
     const html = marked.parse(text);
@@ -286,9 +485,13 @@ document.addEventListener('keydown', (e) => {
     shortcutsModal.style.display = shortcutsModal.style.display === 'none' ? 'flex' : 'none';
   }
 
-  // escape to close modal
+  // escape to close fullscreen or modal
   if (e.key === 'Escape') {
-    shortcutsModal.style.display = 'none';
+    if (diagramFullscreen.style.display !== 'none') {
+      closeDiagramFullscreen();
+    } else {
+      shortcutsModal.style.display = 'none';
+    }
   }
 });
 
