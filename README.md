@@ -1,123 +1,42 @@
-# Markdown Viewer PWA
+# Markdown Viewer
 
-A lightweight, fast, and beautiful markdown file viewer that works as a Progressive Web App. Set it as your default `.md` file handler and enjoy instant, gorgeous markdown rendering.
+A lightweight, instant markdown file viewer that runs as a Progressive Web App. Install it from your browser and set it as your default `.md` file handler — double-click any markdown file and it just works.
 
-**Try it now:** [https://spskelly.github.io/markdown-viewer/](https://spskelly.github.io/markdown-viewer/)
+## Install
+
+1. **Open** [spskelly.github.io/markdown-viewer](https://spskelly.github.io/markdown-viewer/)
+2. **Install** — click the install icon in the address bar (or browser menu → "Install Markdown Viewer")
+3. **Set as default** — right-click any `.md` file → "Open with" → "Markdown Viewer" → "Always use this app"
+
+That's it. Now double-clicking any `.md` file opens it beautifully.
+
+> Requires a Chromium browser (Chrome, Edge, Brave) for the file handler feature. Firefox and Safari can use the app but won't register as a file handler.
 
 ## Features
 
-- 🚀 **Instant loading** - Offline-first PWA with service worker caching
-- 📂 **File handler** - Set as default app for `.md` files (Chromium browsers)
-- 🎨 **Beautiful rendering** - GitHub-style markdown with syntax highlighting
-- 📊 **Mermaid diagrams** - Render flowcharts, sequence diagrams, and more
-- 🌓 **Dark/Light mode** - Toggle between themes (preference saved)
-- ⌨️ **Keyboard shortcuts** - Quick access to common actions (press `?` for help)
-- 📱 **Responsive** - Works great on desktop and mobile
-- 💾 **Drag & drop** - Drop files directly onto the viewer
-- 🖨️ **Print-friendly** - Clean print stylesheet for markdown content
+- **File handler** — registers as a default app for `.md` files on your system
+- **Offline** — works without internet after install
+- **Dark/Light mode** — toggle with `Ctrl+D` (preference saved)
+- **Syntax highlighting** — 100+ languages via highlight.js
+- **Mermaid diagrams** — flowcharts, sequence diagrams, Gantt charts, and more
+- **Drag & drop** — drop files directly onto the window
+- **Keyboard shortcuts** — press `?` for the full list
+- **Print-friendly** — clean print stylesheet
 
-## Quick Start
+## Why?
 
-### 1. Serve the files
-
-You need to serve these files over HTTPS (or localhost) for PWA features to work. Choose one:
-
-**Option A: Python SimpleHTTPServer (easiest)**
-```bash
-cd markdown-viewer
-python3 -m http.server 8000
-```
-Then visit: http://localhost:8000
-
-**Option B: Node.js http-server**
-```bash
-npm install -g http-server
-cd markdown-viewer
-http-server -p 8000
-```
-
-**Option C: Deploy to GitHub Pages, Netlify, Vercel, or Cloudflare Pages**
-- Just push the `markdown-viewer` folder to your repo
-- These platforms automatically serve with HTTPS
-
-### 2. Install as PWA
-
-1. Open the app in Chrome/Edge/Chromium browser
-2. Look for the install icon in the address bar (or ⋮ menu → "Install Markdown Viewer")
-3. Click to install
-
-### 3. Set as default file handler
-
-After installing:
-1. Right-click any `.md` file on your system
-2. Choose "Open with" → "Choose another app"
-3. Select "Markdown Viewer" from the list
-4. Check "Always use this app"
-
-Now double-clicking any `.md` file opens it beautifully!
-
-## Keyboard Shortcuts
-
-- `Ctrl/Cmd + O` - Open file
-- `Ctrl/Cmd + D` - Toggle dark/light mode
-- `?` - Show keyboard shortcuts
-- `Esc` - Close dialog
-
-## Features Explained
-
-### File Handling API
-The app uses the File Handling API to register as a handler for `.md` and `.markdown` files. This is currently supported in Chromium-based browsers (Chrome, Edge, Brave, etc.).
-
-### Syntax Highlighting
-Code blocks are automatically highlighted using highlight.js with support for 100+ languages.
-
-### Mermaid Diagrams
-Fenced code blocks with the `mermaid` language tag are rendered as interactive diagrams. Supports flowcharts, sequence diagrams, Gantt charts, and more. Diagrams automatically adapt to the current theme.
-
-### Offline Support
-Once installed, the app works completely offline. All assets are cached via service worker.
-
-### Drag & Drop
-Can't set as default? Just drag any markdown file onto the app window.
-
-## Browser Support
-
-- ✅ Chrome/Edge/Brave (full support including file handler)
-- ✅ Firefox (works, but no file handler API yet)
-- ✅ Safari (works, but no file handler API yet)
+There's no lightweight, dedicated markdown viewer. Everything is either a heavy editor (VS Code, Typora), a clunky browser extension, or a terminal tool. This fills that gap: double-click → instant rendering.
 
 ## Development
 
-Want to modify it? All the code is straightforward:
+Want to modify it? Clone the repo and serve over HTTPS (or localhost). The codebase is five files:
 
-- `index.html` - App shell
-- `app.js` - Main logic (file handling, rendering)
-- `styles.css` - GitHub-style markdown CSS
-- `manifest.json` - PWA configuration
-- `service-worker.js` - Offline caching
-
-## Libraries Used
-
-- **marked.js** - Markdown parsing
-- **marked-highlight** - Syntax highlighting integration
-- **highlight.js** - Syntax highlighting
-- **mermaid.js** - Diagram rendering
-- **Service Worker API** - Offline support
-- **File Handling API** - Default file handler
-
-## Why This Exists
-
-There's a surprising gap in the ecosystem - no lightweight, dedicated markdown viewer. Everything is either:
-- A heavy editor (VSCode, Typora)
-- A browser extension (clunky file:// handling)
-- A terminal tool (not graphical)
-
-This fills that gap: double-click → instant beautiful rendering. That's it.
+- `index.html` — app shell
+- `app.js` — file handling, rendering, UI
+- `styles.css` — GitHub-style markdown CSS
+- `manifest.json` — PWA config
+- `service-worker.js` — offline caching
 
 ## License
 
-MIT - do whatever you want with it
-
----
-
-Built because .md files deserve better than notepad 💚
+MIT
