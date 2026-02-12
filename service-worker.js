@@ -1,16 +1,16 @@
-const CACHE_NAME = 'markdown-viewer-v3';
+const CACHE_NAME = 'markdown-viewer-v4';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/manifest.json',
+  './',
+  './index.html',
+  './styles.css',
+  './app.js',
+  './manifest.json',
   'https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js',
   'https://cdn.jsdelivr.net/npm/marked-highlight@2.2.3/lib/index.umd.js',
   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css',
-  'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js',
+  'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js',
   'https://cdn.jsdelivr.net/npm/panzoom@9.4.3/dist/panzoom.min.js'
 ];
 

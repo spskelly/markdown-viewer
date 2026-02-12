@@ -1,6 +1,6 @@
 // register service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js', { scope: '/markdown-viewer/' })
+  navigator.serviceWorker.register('./service-worker.js')
     .then(reg => console.log('service worker registered', reg))
     .catch(err => console.log('service worker registration failed', err));
 }
