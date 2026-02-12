@@ -2,15 +2,19 @@
 
 A lightweight, fast, and beautiful markdown file viewer that works as a Progressive Web App. Set it as your default `.md` file handler and enjoy instant, gorgeous markdown rendering.
 
+**Try it now:** [https://spskelly.github.io/markdown-viewer/](https://spskelly.github.io/markdown-viewer/)
+
 ## Features
 
 - 🚀 **Instant loading** - Offline-first PWA with service worker caching
 - 📂 **File handler** - Set as default app for `.md` files (Chromium browsers)
 - 🎨 **Beautiful rendering** - GitHub-style markdown with syntax highlighting
-- 🌓 **Dark/Light mode** - Toggle between themes
-- ⌨️ **Keyboard shortcuts** - Quick access to common actions
+- 📊 **Mermaid diagrams** - Render flowcharts, sequence diagrams, and more
+- 🌓 **Dark/Light mode** - Toggle between themes (preference saved)
+- ⌨️ **Keyboard shortcuts** - Quick access to common actions (press `?` for help)
 - 📱 **Responsive** - Works great on desktop and mobile
 - 💾 **Drag & drop** - Drop files directly onto the viewer
+- 🖨️ **Print-friendly** - Clean print stylesheet for markdown content
 
 ## Quick Start
 
@@ -56,6 +60,8 @@ Now double-clicking any `.md` file opens it beautifully!
 
 - `Ctrl/Cmd + O` - Open file
 - `Ctrl/Cmd + D` - Toggle dark/light mode
+- `?` - Show keyboard shortcuts
+- `Esc` - Close dialog
 
 ## Features Explained
 
@@ -64,6 +70,9 @@ The app uses the File Handling API to register as a handler for `.md` and `.mark
 
 ### Syntax Highlighting
 Code blocks are automatically highlighted using highlight.js with support for 100+ languages.
+
+### Mermaid Diagrams
+Fenced code blocks with the `mermaid` language tag are rendered as interactive diagrams. Supports flowcharts, sequence diagrams, Gantt charts, and more. Diagrams automatically adapt to the current theme.
 
 ### Offline Support
 Once installed, the app works completely offline. All assets are cached via service worker.
@@ -90,7 +99,9 @@ Want to modify it? All the code is straightforward:
 ## Libraries Used
 
 - **marked.js** - Markdown parsing
+- **marked-highlight** - Syntax highlighting integration
 - **highlight.js** - Syntax highlighting
+- **mermaid.js** - Diagram rendering
 - **Service Worker API** - Offline support
 - **File Handling API** - Default file handler
 
