@@ -1,4 +1,4 @@
-const CACHE_NAME = 'markdown-viewer-v4';
+const CACHE_NAME = 'markdown-viewer-v5';
 const urlsToCache = [
   './',
   './index.html',
@@ -45,6 +45,11 @@ self.addEventListener('activate', event => {
 
 // fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', event => {
+  // only handle http/https requests - skip chrome-extension:// and other schemes
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
